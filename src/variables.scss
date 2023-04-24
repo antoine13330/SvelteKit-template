@@ -1,0 +1,10 @@
+// important for potential dynamic theme switching
+:root { 
+    --primary-color: #3f403c;
+    --secondary-color: #e0dac9;
+    --tertiary-color: #798a73;
+}
+
+$primary-color:var(--primary-color);
+$secondary-color:var(--secondary-color);
+$tertiary-color:var(--prtertiaryolor);
