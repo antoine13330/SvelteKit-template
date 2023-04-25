@@ -1,48 +1,63 @@
 import { auth } from "$lib/server/lucia";
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail, type Actions, redirect } from "@sveltejs/kit";
+import { LuciaError } from "lucia-auth";
+export const load = async ({ locals }) => {
+    const { user } = await locals.auth.validateUser();
+    if  ( user )
+        throw redirect(302 , "/");
+    return {};
+};
 
 
 export const actions: Actions = {
-	login: async ({ request, locals }) => {
+    login: async ({ request, locals }) => {
         const formDatas = await request.formData();
-        const email = formDatas.get("email");
-        const username = formDatas.get("username");
-        const password = formDatas.get("password");
-        if  ( !email  ) {
-            return fail(400 , { error : {
-                email , missing : true , message : "Email is required"
-            } });
+        const email = formDatas.get("email")?.toString();
+        const password = formDatas.get("password")?.toString();
+        if (!email) {
+            return fail(400, {
+                error: {
+                    email, missing: true, message: "Email is required"
+                }
+            });
         }
-        if ( !username  ) {
-            return fail(400 , { error : {
-                username , missing : true , message : "Username is required"
-            } });
+        if (!password) {
+            return fail(400, {
+                error: {
+                    password, missing: true, message: "Password is required"
+                }
+            });
         }
-        if ( !password  ) {
-            return fail(400 , { error : {
-                password  , missing : true , message : "Password is required"
-            } });
-        }
-        const user = await auth.createUser({
-            primaryKey: {
-                providerId: "email",
-                providerUserId: email.toString(),
-                password : password.toString()
-            },
-            attributes: {
-                email,
-                username
+        try {
+            const key = auth.useKey('email', email, password);
+            const session = await auth.createSession((await key).userId);
+            locals.auth.setSession(session);
+
+            console.log("has been set" ,await locals.auth.validateUser())
+        } catch (e) {
+            if (e instanceof LuciaError && e.message === 'AUTH_INVALID_KEY_ID') {
+                return fail(400, {
+                    error: {
+                        message: 'Incorrect email or password',
+                        email
+                    }
+                });
             }
-        });
-        const session = await auth.createSession(user.userId);
-        
-        locals.auth.setSession(session);
-        
-        return {
-            status: 200,
-            body: {
-                user
+            if (e instanceof LuciaError && e.message === 'AUTH_INVALID_PASSWORD') {
+                return fail(400, {
+                    error: {
+                        message: 'Incorrect email or password',
+                        email
+                    }
+                });
             }
-        };
+            return fail(400, {
+                error: {
+                    message: 'An unknown error occurred',
+                    email
+                }
+            });
+        }
+        throw redirect(302, '/');
     }
 };

@@ -1,14 +1,6 @@
-<script>
-	import { enhance } from "$app/forms";
-</script>
 <h1>Register</h1>
 
-<form action="?/register" method="POST" use:enhance={() =>{
-    
-    return async ({ result }) => {
-        console.log(result)        
-    };
-}}>
+<form action="?/register" method="POST">
     <label for="username">username</label>
     <input type="text" name="username" id="username" required />
     <label for="email">Email</label>

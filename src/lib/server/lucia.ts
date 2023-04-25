@@ -7,7 +7,13 @@ const prismaClient = new PrismaClient();
 export const auth = lucia({
 	adapter: prisma(prismaClient),
 	env: dev ? "DEV" : "PROD",
-	middleware: sveltekit()
+	middleware: sveltekit(),
+	transformDatabaseUser: (user) => {
+		return {
+			userId: user.id,
+			username: user.username
+		};
+	}
 });
 
 export type Auth = typeof auth;

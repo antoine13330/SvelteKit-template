@@ -16,9 +16,12 @@ declare global {
 	namespace Lucia {
 		type Auth = import("$lib/server/lucia").Auth;
 		// eslint-disable-next-line @typescript-eslint/ban-types
-		type UserAttributes = {};
+		type UserAttributes = {
+			username : string;
+		};
 	}
 }
+
 
 // THIS IS IMPORTANT!!!
 export {};

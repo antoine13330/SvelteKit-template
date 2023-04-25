@@ -5,7 +5,11 @@
 
 <form action="?/login" method="POST" use:enhance={() =>{  
         return async ({ result }) => {
-            console.log(result)        
+            if ( result.status === 302 ) {
+                window.location.href = '/';
+            } else {
+                alert(result.data.error.message)
+            }
         };
     }}>
     <label for="email">Email</label>
