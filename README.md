@@ -1,2 +1,3 @@
-Notifier la config de la bdd avec init avant puis
+Create the bdd in sync with the prisma file and after : 
+
 ``npx prisma migrate dev --name init``
